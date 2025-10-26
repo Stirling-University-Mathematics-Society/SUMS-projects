@@ -1,0 +1,90 @@
+#imports------------------------------------------------------------------------------
+import numpy as np                      # For arrays
+import matplotlib.pyplot as plt         # For plotting graphs
+from scipy.integrate import solve_ivp   # For solving systems of differential equations
+#Initial conditions-------------------------------------------------------------------
+
+S = 4000
+#Number of susceptible population
+
+I = 1
+#Number of infected population
+
+R = 0
+#Number of recovered population
+
+N = S + I + R
+#The total population
+
+beta = 2
+#Infection rate beta
+
+gamma = 0.01
+#Recovery rate gamma
+#Fraction of infected population that recovers each step in time
+
+
+#-------------------------------------------------------------------------------------
+# dS/dt = -(beta/N)  *  I * S               Change in susceptible population over time
+
+# dI/dt = (beta/N) * I * S  - (gamma *  I)  Change in infected population
+
+# dR/dt =  gamma * I                        Change in recovered population
+#-------------------------------------------------------------------------------------
+
+
+
+
+
+#Create system of equations-----------------------------------------------------------
+
+def system(t, y):
+
+    # Current values of S, I and R
+    S, I, R = y
+
+    # Differential equations
+    ds_dt = (-beta / N) * I * S
+    di_dt = ((beta / N) * I * S) - (gamma * I)
+    dr_dt = gamma * I
+
+    # Return these in a list
+    return [ds_dt, di_dt, dr_dt]
+
+    # While t is not used in this, solve_ivp takes in two arguments, and throws and error if its only receives one.
+    # t is useful for time dependent variables. For example, a changing infection rate
+
+
+#Solve system of equations------------------------------------------------------------
+
+# Evaluate from 0 to 365 days, with 5000 evenly spaced points (more points = smoother graph)
+# linspace -> linear space with evenly spaced points, between two endpoints. Takes start, end, and number of points
+# This tells solve_ivp at what points to plot the variables
+t_eval = np.linspace(0, 365, 5000)
+
+
+
+# Solve_ivp integrates the differential equations, and returns S, I, and R at each step in time. Its inputs are the
+# system, the time interval and the initial conditions and where the solution is stored
+solutions = solve_ivp(system, (0, 365), [S, I, R], t_eval=t_eval)
+
+#Plot the results----------------------------------------------------------------------
+# Plot the lines of each variable
+plt.plot(solutions.t, solutions.y[0], label="Susceptible")
+plt.plot(solutions.t, solutions.y[1], label="Infected")
+plt.plot(solutions.t, solutions.y[2], label="Recovered")
+
+#X axis label
+plt.xlabel("Time")
+
+#Y axis label
+plt.ylabel("Populations")
+
+#Title
+plt.title("SIR Model Projection")
+
+#Show legend
+plt.legend()
+
+#Display plot
+plt.show()
